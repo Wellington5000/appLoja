@@ -1,6 +1,36 @@
 import React from 'react';
 import {View, Text, StyleSheet, Image, TextInput} from 'react-native';
 import {TouchableOpacity} from 'react-native-gesture-handler';
+import { Pix } from 'gpix'
+
+
+async function gerar(navigation){
+  // Example 01: BRCODE static with defined amount.
+  let pix = PIX.static()
+    .setReceiverName("Wellington Teixeira")
+    .setReceiverCity("Teixeira")
+    .setReceiverZipCode("15082131") // optional
+    .setKey("6186247316")
+    .setIdentificator("123") // optional
+    .setDescription("Donation with defined amount - GPIX") // optional
+    .isUniqueTransaction(true) // optional
+    .setAmount(0.50); // optional
+
+  console.log("\nDonation with defined amount - GPIX >>>>\n", pix.getBRCode());
+
+  pix.setDescription("Free Donation / QRCODE - GPIX"); // optional
+
+  if (await pix.saveQRCodeFile("./qrcode.png")) {
+    console.log("success in saving static QR-code");
+  } else {
+    console.log("error saving QR-code");
+  }
+}
+
+
+
+
+
 
 const GerarCobranca = ({navigation}) => {
   const [valor, onChangeValor] = React.useState("");
