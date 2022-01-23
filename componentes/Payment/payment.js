@@ -1,19 +1,27 @@
-import { BaseNavigationContainer, NavigationContainer } from "@react-navigation/native";
-import React from "react";
+import React, { useState } from "react";
 import { View, Text, StyleSheet, Image } from "react-native";
 import { TouchableOpacity } from "react-native-gesture-handler";
+import axios from 'axios'
 
 function navegar(navigation){
     navigation.navigate("Historico")
 }
 
 const Payment = ({navigation}) => {
-    //const params = props.navigation.state.params;    
+    const [saldoDisponivel, setSaldoDisponivel] = useState(0)
+    //const params = props.navigation.state.params; 
+    async function verificaSaldo(){
+        await axios.post('http://192.168.18.8:3000/recebimentos', {cpf_cnpj: '61862470316'}).then((res) => {
+            console.log(res.data.saldo_disponivel)
+            setSaldoDisponivel(res.data.saldo_disponivel)
+        })
+    }
+    verificaSaldo()   
     return(
         <View style={estilos.container}>
             <Text style={estilos.textoSaldoDisponivel}>Saldo Disponível</Text>
             <View style={estilos.painelValorDisponivel}>
-                <Text style={estilos.textoValorDisponivel}>10.255,50 R$</Text>
+                <Text style={estilos.textoValorDisponivel}>{saldoDisponivel} R$</Text>
             </View>
 
             <View style={estilos.painel}>

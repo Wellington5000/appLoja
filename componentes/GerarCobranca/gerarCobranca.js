@@ -1,40 +1,18 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {View, Text, StyleSheet, Image, TextInput} from 'react-native';
 import {TouchableOpacity} from 'react-native-gesture-handler';
-import { Pix } from 'gpix'
-
-
-async function gerar(navigation){
-  // Example 01: BRCODE static with defined amount.
-  let pix = PIX.static()
-    .setReceiverName("Wellington Teixeira")
-    .setReceiverCity("Teixeira")
-    .setReceiverZipCode("15082131") // optional
-    .setKey("6186247316")
-    .setIdentificator("123") // optional
-    .setDescription("Donation with defined amount - GPIX") // optional
-    .isUniqueTransaction(true) // optional
-    .setAmount(0.50); // optional
-
-  console.log("\nDonation with defined amount - GPIX >>>>\n", pix.getBRCode());
-
-  pix.setDescription("Free Donation / QRCODE - GPIX"); // optional
-
-  if (await pix.saveQRCodeFile("./qrcode.png")) {
-    console.log("success in saving static QR-code");
-  } else {
-    console.log("error saving QR-code");
-  }
-}
-
-
-
-
-
+import axios from 'axios'
 
 const GerarCobranca = ({navigation}) => {
-  const [valor, onChangeValor] = React.useState("");
-  const [descricao, onChangeDescricao] = React.useState("")
+  const [valor, onChangeValor] = useState("");
+  const [descricao, onChangeDescricao] = useState("")
+  const [cpf, onChangeCpf] = useState("")
+
+  async function gerarCobranca(navigation){
+    await axios.post('http://192.168.18.8:3000/criar_cobranca', {cpf_cnpj_loja: '61862470316', valor: valor, descricao: descricao, cpf_cliente: cpf}).then((res) => {
+      navigation.navigate('GerarQRCode', res.data)
+    })
+  }
 
   return (
     <View style={estilos.container}>
@@ -48,12 +26,14 @@ const GerarCobranca = ({navigation}) => {
       <View style={estilos.painelBranco}>
         <View style={estilos.viewInputs}>
             <Text style={estilos.textInput}>Valor</Text>
-            <TextInput placeholder="Ex: 20,50" style={estilos.input} onChangeText={onChangeValor} value={valor}/>
+            <TextInput placeholder="Ex: 20,50" keyboardType="numeric" style={estilos.input} onChangeText={onChangeValor} value={valor}/>
             <Text style={estilos.textInput}>Descrição</Text>
-            <TextInput placeholder="Ex: 5kg Arroz" keyboardType="numeric" style={estilos.input} onChangeText={onChangeDescricao} value={descricao}/>
+            <TextInput placeholder="Ex: 5kg Arroz" style={estilos.input} onChangeText={onChangeDescricao} value={descricao}/>
+            <Text style={estilos.textInput}>CPF do Cliente</Text>
+            <TextInput placeholder="Ex: 61862470316 (Apenas números)" keyboardType="numeric" style={estilos.input} onChangeText={onChangeCpf} value={cpf}/>
         </View> 
 
-        <TouchableOpacity style={estilos.botaoResgatar} onPress={() => navigation.navigate('GerarQRCode')}>
+        <TouchableOpacity style={estilos.botaoResgatar} onPress={() => gerarCobranca(navigation)}>
             <Text style={estilos.textoResgatar}>Gerar QRCode</Text>
         </TouchableOpacity>
        </View>

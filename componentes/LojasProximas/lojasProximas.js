@@ -2,7 +2,8 @@ import React from 'react';
 import {View, StyleSheet, Image, Text} from 'react-native';
 import {TouchableOpacity} from 'react-native-gesture-handler';
 
-const GerarQRCode = ({navigation}) => {
+const GerarQRCode = ({route, navigation}) => {
+  console.log(route.params)
   return (
     <View style={estilos.container}>
       <View style={estilos.imagens}>
@@ -14,7 +15,7 @@ const GerarQRCode = ({navigation}) => {
       <Text style={estilos.textoHistorico}>Código QR</Text>
       <View style={estilos.painelBranco}>
         <View>
-            <Image style={estilos.imagemMapa} source={{uri: 'http://192.168.18.8:3000/qrcode.png'}}></Image>
+            <Image style={estilos.imagemMapa} source={{uri: route.params.qrCodeImage}}></Image>
         </View>
       </View>
     </View>
