@@ -1,8 +1,26 @@
-import React from 'react';
-import {View, StyleSheet, Image, Text} from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { FlatList, View, StyleSheet, Image, Text} from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
+import axios from 'axios'
+import moment from 'moment'
 
 const Historico = ({navigation}) => {
+  const [data, setData] = useState([])
+  const [valorTotal, setValorTotal] = useState(0)
+  moment.locale('pt-BR')
+  async function historico(){
+    await axios.post('https://api-pix.herokuapp.com/historico', {cpf_cnpj: '61862470316'}).then((res) => {
+      setData(res.data)
+      var valor_total = res.data.reduce((a, b) => a + (b['value'] || 0), 0);
+      console.log(valor_total)
+      setValorTotal(valor_total)
+
+    })
+  }
+
+  useEffect(() => {
+    historico()
+  }, []);
   return (
     <View style={estilos.container}>
       <View style={estilos.imagens}>
@@ -15,45 +33,19 @@ const Historico = ({navigation}) => {
       <View style={estilos.painelBranco}>
         <View style={estilos.painelTotalCashabck}>
           <Text style={estilos.textoTotalCashback}>
-            Faturamento no mês                                                 12.000,00 R$
+            Faturamento no mês                                                  R$ {valorTotal}
           </Text>
         </View>
         <View style={estilos.painelInterno}>
-          <View style={estilos.painelInternoHistorico}>
+          <FlatList 
+            data={data}
+            keyExtractor={({identifier}) => identifier.toString()}
+            renderItem={({item}) => <View  style={estilos.painelInternoHistorico}>
             <Text style={estilos.textoPainelHistorico}>
-              Supermercado Carvalho                                                4,20 R$
+               R$ {item.value}                                                           {moment(item.createdAt).format('DD/MM/YYYY HH:mm')}
             </Text>
-          </View>
-          <View style={estilos.painelInternoHistorico}>
-            <Text style={estilos.textoPainelHistorico}>
-              Supermercado Carvalho                                                1,00 R$
-            </Text>
-          </View>
-          <View style={estilos.painelInternoHistorico}>
-            <Text style={estilos.textoPainelHistorico}>
-              Supermercado Carvalho                                                8,00 R$
-            </Text>
-          </View>
-          <View style={estilos.painelInternoHistorico}>
-            <Text style={estilos.textoPainelHistorico}>
-              Supermercado Carvalho                                                3,50 R$
-            </Text>
-          </View>
-          <View style={estilos.painelInternoHistorico}>
-            <Text style={estilos.textoPainelHistorico}>
-              Supermercado Carvalho                                                7,80 R$
-            </Text>
-          </View>
-          <View style={estilos.painelInternoHistorico}>
-            <Text style={estilos.textoPainelHistorico}>
-              Supermercado Carvalho                                                2,40 R$
-            </Text>
-          </View>
-          <View style={estilos.painelInternoHistorico}>
-            <Text style={estilos.textoPainelHistorico}>
-              Supermercado Carvalho                                                0,80 R$
-            </Text>
-          </View>
+          </View>}
+          />
         </View>
       </View>
     </View>

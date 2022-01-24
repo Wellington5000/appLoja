@@ -1,8 +1,29 @@
-import React from 'react';
+import axios from 'axios';
+import React, { useState, useEffect } from 'react';
 import {View, StyleSheet, Image, Text} from 'react-native';
 import {TouchableOpacity} from 'react-native-gesture-handler';
 
-const Resgatar = ({navigation}) => {
+const Resgatar = ({route, navigation}) => {
+  const [dadosBancarios, setDadosBancarios] = useState({})
+  console.log(route.params)
+  async function resgate(){
+    await axios.post('https://api-pix.herokuapp.com/resgate', {chave_pix: dadosBancarios.chave_pix, valor: route.params.saldoDisponivel}).then((res) => {
+      console.log(res.data)
+    })
+  }
+
+  async function getDadosBancarios(){
+      await axios.post('https://api-pix.herokuapp.com/dados_bancarios', {cpf_cnpj: '61862470316'}).then((res) => {
+        console.log(res.data)
+        setDadosBancarios(res.data)
+        console.log(dadosBancarios)
+      })
+  }
+
+  useEffect(() => {
+    getDadosBancarios()  
+  }, []);
+
   return (
     <View style={estilos.container}>
       <View style={estilos.imagens}>
@@ -15,23 +36,23 @@ const Resgatar = ({navigation}) => {
       <View style={estilos.painelBranco}>
         <View style={estilos.painelTotalCashabck}>
           <Text style={estilos.textoTotalCashback}>
-            Saldo Disponível                                                          6.500,00 R$
+            Saldo Disponível                                                          {route.params.saldoDisponivel} R$
           </Text>
         </View>
 
-        <TouchableOpacity style={estilos.botaoResgatar}>
+        <TouchableOpacity style={estilos.botaoResgatar} onPress={() => resgate()}>
             <Text style={estilos.textoResgatar}>Resgatar</Text>
         </TouchableOpacity>
 
         <View style={estilos.painelDadosBancarios}>
             <Text style={estilos.textoDadosBancarios}>Dados Bancários</Text>
-            <Text style={estilos.textoDadosBancarios}>Conta                                                                                 64521522-9</Text>
-            <Text style={estilos.textoDadosBancarios}>Agência                                                                                     564213</Text>
+            <Text style={estilos.textoDadosBancarios}>Conta                                                                                        {dadosBancarios.conta}</Text>
+            <Text style={estilos.textoDadosBancarios}>Agência                                                                                    {dadosBancarios.agencia}</Text>
         </View>
 
         <View style={estilos.painelPix}>
             <Text style={estilos.textoDadosBancarios}>Pix</Text>
-            <Text style={estilos.textoDadosBancarios}>Chave                                                                         123.456.789-10</Text>
+            <Text style={estilos.textoDadosBancarios}>Chave                                                                         {dadosBancarios.chave_pix}</Text>
         </View>
 
         <TouchableOpacity style={estilos.botaoResgatar}>

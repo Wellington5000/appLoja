@@ -9,7 +9,7 @@ const GerarCobranca = ({navigation}) => {
   const [cpf, onChangeCpf] = useState("")
 
   async function gerarCobranca(navigation){
-    await axios.post('http://192.168.18.8:3000/criar_cobranca', {cpf_cnpj_loja: '61862470316', valor: valor, descricao: descricao, cpf_cliente: cpf}).then((res) => {
+    await axios.post('https://api-pix.herokuapp.com/criar_cobranca', {cpf_cnpj_loja: '61862470316', valor: valor, descricao: descricao, cpf_cliente: cpf}).then((res) => {
       navigation.navigate('GerarQRCode', res.data)
     })
   }
