@@ -12,7 +12,9 @@ import GerarQRCode from './componentes/LojasProximas/lojasProximas';
 import GerarCobranca from './componentes/GerarCobranca/gerarCobranca'
 
 const Stack = createStackNavigator();
-
+//global.BASEURL = 'http://192.168.18.8:3000'
+global.Saldo = 0
+global.BASEURL = 'https://api-pix.herokuapp.com'
 const App = () => {
   return (
     <NavigationContainer>

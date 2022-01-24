@@ -3,13 +3,14 @@ import { FlatList, View, StyleSheet, Image, Text} from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import axios from 'axios'
 import moment from 'moment'
+import NumberFormat from 'react-number-format';
 
 const Historico = ({navigation}) => {
   const [data, setData] = useState([])
   const [valorTotal, setValorTotal] = useState(0)
   moment.locale('pt-BR')
   async function historico(){
-    await axios.post('https://api-pix.herokuapp.com/historico', {cpf_cnpj: '61862470316'}).then((res) => {
+    await axios.post(BASEURL + '/historico', {cpf_cnpj: '61862470316'}).then((res) => {
       setData(res.data)
       var valor_total = res.data.reduce((a, b) => a + (b['value'] || 0), 0);
       console.log(valor_total)
@@ -32,18 +33,34 @@ const Historico = ({navigation}) => {
       <Text style={estilos.textoHistorico}>Histórico</Text>
       <View style={estilos.painelBranco}>
         <View style={estilos.painelTotalCashabck}>
-          <Text style={estilos.textoTotalCashback}>
-            Faturamento no mês                                                  R$ {valorTotal}
-          </Text>
+        <NumberFormat 
+            value={valorTotal / 100} 
+            decimalScale={2}
+            displayType={'text'} 
+            thousandSeparator={true} 
+            prefix={'R$ '} 
+            renderText={(value, props) => 
+            <Text style={estilos.textoTotalCashback}>
+              Faturamento no mês                                                  {value}
+            </Text>} 
+          />
         </View>
         <View style={estilos.painelInterno}>
           <FlatList 
             data={data}
             keyExtractor={({identifier}) => identifier.toString()}
             renderItem={({item}) => <View  style={estilos.painelInternoHistorico}>
-            <Text style={estilos.textoPainelHistorico}>
-               R$ {item.value}                                                           {moment(item.createdAt).format('DD/MM/YYYY HH:mm')}
-            </Text>
+              <NumberFormat 
+                value={item.value / 100} 
+                decimalScale={2}
+                displayType={'text'} 
+                thousandSeparator={true} 
+                prefix={'R$ '} 
+                renderText={(value, props) => 
+                  <Text style={estilos.textoPainelHistorico}>
+                   {value}                                                           {moment(item.createdAt).format('DD/MM/YYYY HH:mm')}
+                  </Text>} 
+              />
           </View>}
           />
         </View>
