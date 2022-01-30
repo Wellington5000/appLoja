@@ -10,6 +10,7 @@ import Historico from './componentes/Historico/historico'
 import Resgatar from './componentes/Resgatar/resgatar'
 import GerarQRCode from './componentes/LojasProximas/lojasProximas';
 import GerarCobranca from './componentes/GerarCobranca/gerarCobranca'
+import Cadastro from './componentes/cadastro/cadastro';
 
 const Stack = createStackNavigator();
 //global.BASEURL = 'http://192.168.18.8:3000'
@@ -18,7 +19,8 @@ global.BASEURL = 'https://api-pix.herokuapp.com'
 const App = () => {
   return (
     <NavigationContainer>
-      <Stack.Navigator screenOptions={{ headerShown: false }} initialRouteName="Payment">
+      <Stack.Navigator screenOptions={{ headerShown: false }} initialRouteName="Cadastro">
+        <Stack.Screen name="Cadastro"         component={Cadastro} />
         <Stack.Screen name="StartScreen"      component={StartScreen} />
         <Stack.Screen name="HomeScreen"       component={HomeScreen} />
         <Stack.Screen name="Payment"          component={Payment} />
