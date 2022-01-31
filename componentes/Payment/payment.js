@@ -4,14 +4,15 @@ import {TouchableOpacity} from 'react-native-gesture-handler';
 import axios from 'axios';
 import NumberFormat from 'react-number-format';
 import { useIsFocused } from "@react-navigation/native";
+import { AsyncStorage } from "react-native";
 
 const Payment = ({navigation}) => {
   const [dadosBancarios, setDadosBancarios] = useState({});
   const isFocused = useIsFocused();
   //const params = props.navigation.state.params;
   async function verificaSaldo() {
-    console.log(BASEURL);
-    await axios.post(BASEURL + '/', {cpf_cnpj: '61862470316'}).then(res => {
+    const value = await AsyncStorage.getItem('cpfCnpj');
+    await axios.post(BASEURL + '/', {cpf_cnpj: value}).then(res => {
       setDadosBancarios(res.data);
       Saldo = dadosBancarios.saldo_disponivel
     });
