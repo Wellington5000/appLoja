@@ -2,22 +2,21 @@ import React, { useState } from 'react';
 import {View, Text, StyleSheet, Image, TextInput} from 'react-native';
 import {TouchableOpacity} from 'react-native-gesture-handler';
 import axios from 'axios'
-import useLocalizacao from '../../permissao-localizacao/permissão-localizacao'
+import { AsyncStorage } from "react-native";
 
 const GerarCobranca = ({navigation}) => {
   const [valor, onChangeValor] = useState("");
   const [descricao, onChangeDescricao] = useState("")
   const [cpf, onChangeCpf] = useState("")
-  const {coords, errorMsg} = useLocalizacao()
+  
   async function gerarCobranca(navigation){
-    await axios.post(BASEURL + '/criar_cobranca', {cpf_cnpj_loja: '61862470316', valor: valor * 100, descricao: descricao, cpf_cliente: cpf, nome_loja: "Mercadinho São José"}).then((res) => {
-      console.log(res.data)
+    const value = await AsyncStorage.getItem('cpfCnpj');
+    await axios.post(BASEURL + '/criar_cobranca', {cpf_cnpj_loja: value, valor: valor, descricao: descricao, cpf_cliente: cpf, nome_loja: "Mercadinho São José"}).then((res) => {
       Saldo = res.data.saldo
-      console.log(Saldo)
       navigation.navigate('GerarQRCode', res.data)
     })
   }
-  console.log(coords)
+
   return (
     <View style={estilos.container}>
       <View style={estilos.imagens}>

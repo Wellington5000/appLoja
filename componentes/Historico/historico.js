@@ -4,17 +4,19 @@ import { TouchableOpacity } from 'react-native-gesture-handler';
 import axios from 'axios'
 import moment from 'moment'
 import NumberFormat from 'react-number-format';
+import { AsyncStorage } from "react-native";
 
 const Historico = ({navigation}) => {
   const [data, setData] = useState([])
   const [valorTotal, setValorTotal] = useState(0)
   moment.locale('pt-BR')
   async function historico(){
-    await axios.post(BASEURL + '/historico', {cpf_cnpj: '61862470316'}).then((res) => {
-      setData(res.data)
-      var valor_total = res.data.reduce((a, b) => a + (b['value'] || 0), 0);
-      console.log(valor_total)
-      setValorTotal(valor_total)
+    const value = await AsyncStorage.getItem('cpfCnpj');
+    await axios.post(BASEURL + '/historico', {cpf_cnpj: value}).then((res) => {
+      setData(res.data.cobrancas)
+      var valor_total = res.data.cobrancas.reduce((a, b) => a + (b['value'] || 0), 0);
+      
+      setValorTotal(valor_total - (valor_total * (res.data.loja.porcentagem_desconto / 100)))
 
     })
   }
@@ -34,7 +36,7 @@ const Historico = ({navigation}) => {
       <View style={estilos.painelBranco}>
         <View style={estilos.painelTotalCashabck}>
         <NumberFormat 
-            value={valorTotal / 100} 
+            value={valorTotal} 
             decimalScale={2}
             displayType={'text'} 
             thousandSeparator={true} 
@@ -51,7 +53,7 @@ const Historico = ({navigation}) => {
             keyExtractor={({identifier}) => identifier.toString()}
             renderItem={({item}) => <View  style={estilos.painelInternoHistorico}>
               <NumberFormat 
-                value={item.value / 100} 
+                value={item.value} 
                 decimalScale={2}
                 displayType={'text'} 
                 thousandSeparator={true} 

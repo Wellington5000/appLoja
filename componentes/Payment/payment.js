@@ -29,7 +29,7 @@ const Payment = ({navigation}) => {
       <Text style={estilos.textoSaldoDisponivel}>Saldo Disponível</Text>
       <View style={estilos.painelValorDisponivel}>
         <NumberFormat
-          value={dadosBancarios.saldo_disponivel / 100}
+          value={dadosBancarios.saldo_disponivel}
           decimalScale={2}
           displayType={'text'}
           thousandSeparator={true}

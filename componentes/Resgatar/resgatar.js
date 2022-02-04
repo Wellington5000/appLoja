@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import {View, StyleSheet, Image, Text, Alert} from 'react-native';
 import {TouchableOpacity} from 'react-native-gesture-handler';
 import NumberFormat from 'react-number-format';
+import { AsyncStorage } from "react-native";
 
 const Resgatar = ({route, navigation}) => {
   const [dadosBancarios, setDadosBancarios] = useState({})
@@ -17,7 +18,8 @@ const Resgatar = ({route, navigation}) => {
   );
 
   async function resgate(){
-    await axios.post( BASEURL + '/resgate', {chave_pix: dadosBancarios.chave_pix, valor: route.params.dadosBancarios.saldo_disponivel, cpf_cnpj: '61862470316'}).then((res) => {
+    const value = await AsyncStorage.getItem('cpfCnpj');
+    await axios.post( BASEURL + '/resgate', {chave_pix: dadosBancarios.chave_pix, valor: route.params.dadosBancarios.saldo_disponivel, cpf_cnpj: value}).then((res) => {
       Saldo = 0
       if(res.data) createTwoButtonAlert()
     })
@@ -39,7 +41,7 @@ const Resgatar = ({route, navigation}) => {
       <View style={estilos.painelBranco}>
         <View style={estilos.painelTotalCashabck}>
           <NumberFormat 
-            value={dadosBancarios.saldo_disponivel / 100} 
+            value={dadosBancarios.saldo_disponivel} 
             decimalScale={2}
             displayType={'text'} 
             thousandSeparator={true} 

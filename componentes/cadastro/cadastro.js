@@ -13,19 +13,18 @@ const Cadastro = ({navigation}) => {
     const [porcentagemDesconto, onChangePorcentagemDesconto] = useState("")
     const [chavePix, onChangeChavePix] = useState("")
     const [tipoChave, onChangeTipoChave] = useState("")
-
+    const [cadastrado, onChangeCadastrado] = useState(false)
     async function cadastrar(navigation){
         await AsyncStorage.setItem(storeKey, cpfCnpj)
-        console.log(value)
         await axios.post(BASEURL + '/cadastrar_loja', { nome_loja: nomeLoja, cpf_cnpj: cpfCnpj, chave_pix: chavePix, tipo_chave_pix : tipoChave, latitude: coords.latitude, longitude: coords.longitude, porcentagem_desconto: porcentagemDesconto}).then((result) => {
             navigation.navigate("Payment")
         })
     }
 
     async function getCpfCnpj(){
-        const value = await AsyncStorage.getItem(storeKey);
-        onChangeCpfCnpj(value)
-        console.log(cpfCnpj)
+        var value = await AsyncStorage.getItem(storeKey);
+        (value) ? onChangeCadastrado(true) : onChangeCadastrado(false)
+        console.log(cadastrado)
     }
 
     useEffect(() => {
@@ -35,7 +34,7 @@ const Cadastro = ({navigation}) => {
     return(
         
         <View style={estilos.container}>
-            {cpfCnpj ? <View>{navigation.navigate('Payment')}</View> : <View><Image style={estilos.imagem} source={require('../../images/logo.png')}></Image>
+            {cadastrado ? <View>{navigation.navigate('Payment')}</View> : <View style={estilos.container}><Image style={estilos.imagem} source={require('../../images/logo.png')}></Image>
             <Text style={estilos.textoCadastro}>Cadastre-se</Text>
 
             <View style={estilos.itens}>
