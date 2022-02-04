@@ -7,16 +7,18 @@ import { AsyncStorage } from "react-native";
 
 const Cadastro = ({navigation}) => {
     const storeKey = 'cpfCnpj';
-    const {coords, errorMsg} = useLocalizacao()
+    const [coordenadas, setCoordenadas] = useState({latitude: "", longitude: ""})
     const [nomeLoja, onChangeNomeLoja] = useState("");
     const [cpfCnpj, onChangeCpfCnpj] = useState("")
     const [porcentagemDesconto, onChangePorcentagemDesconto] = useState("")
     const [chavePix, onChangeChavePix] = useState("")
     const [tipoChave, onChangeTipoChave] = useState("")
     const [cadastrado, onChangeCadastrado] = useState(false)
+    const {coords, errorMsg} = useLocalizacao()
+    console.log(coords)
     async function cadastrar(navigation){
         await AsyncStorage.setItem(storeKey, cpfCnpj)
-        await axios.post(BASEURL + '/cadastrar_loja', { nome_loja: nomeLoja, cpf_cnpj: cpfCnpj, chave_pix: chavePix, tipo_chave_pix : tipoChave, latitude: coords.latitude, longitude: coords.longitude, porcentagem_desconto: porcentagemDesconto}).then((result) => {
+        await axios.post(BASEURL + '/cadastrar_loja', { nome_loja: nomeLoja, cpf_cnpj: cpfCnpj, chave_pix: chavePix, tipo_chave_pix : tipoChave, latitude: coordenadas.latitude, longitude: coordenadas.longitude, porcentagem_desconto: porcentagemDesconto}).then((result) => {
             navigation.navigate("Payment")
         })
     }
@@ -25,8 +27,9 @@ const Cadastro = ({navigation}) => {
         var value = await AsyncStorage.getItem(storeKey);
         (value) ? onChangeCadastrado(true) : onChangeCadastrado(false)
         console.log(cadastrado)
+        const {coords, errorMsg} = useLocalizacao()
+        setCoordenadas(coords)
     }
-
     useEffect(() => {
         getCpfCnpj()
       }, []);
