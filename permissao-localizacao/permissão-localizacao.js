@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { requestMultiple, PERMISSIONS } from 'react-native-permissions';
 import Geolocation from 'react-native-geolocation-service';
 import { Platform } from 'react-native';
+import AsyncStorage from '@react-native-community/async-storage';
 
 export default () => {
   const [errorMsg, setErrorMsg] = useState(null); // será utilizado para armazenar alguma mensagem de erro, caso ocorra
@@ -10,16 +11,20 @@ export default () => {
   useEffect(() => {
     (async function loadPosition() {
 // A função requestMultiple serve para requisitar múltiplas autorizações do usuário em sequência. As requisições são feitas na ordem passada. 
+      let value = await AsyncStorage.getItem('cpfCnpj')
 
-      const result = requestMultiple(
+      if(value){
+        return true
+      }
+      const result = await requestMultiple(
         [
           PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION,
           PERMISSIONS.ANDROID.ACCESS_BACKGROUND_LOCATION
         ]).then(
-          (statuses) => {
+         async (statuses) => {
 //statuses é um vetor que contém as respostas escolhidas pelo usuário em cada uma das autorizações solicitadas.
-            const statusFine = statuses[PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION];  //pegamos a autorização que o usuário selecionou para uso do GPS e para obter localização em primeiro plano
-            const statusBack = statuses[PERMISSIONS.ANDROID.ACCESS_BACKGROUND_LOCATION]; 
+            const statusFine = await statuses[PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION];  //pegamos a autorização que o usuário selecionou para uso do GPS e para obter localização em primeiro plano
+            const statusBack = await statuses[PERMISSIONS.ANDROID.ACCESS_BACKGROUND_LOCATION]; 
 //pegamos a autorização que o usuário selecionou para localização em background 
             if (Platform.Version < 29) { 
 //Em APIs do Android abaixo da 29 não é necessário permissão para background location, apenas solicitar acesso ao GPS já oferece tudo que é necessário para utilizar a localização em primeiro e segundo plano. Nesse caso, apenas verificamos se a autorização do GPS é positiva
@@ -30,20 +35,23 @@ export default () => {
               }
             }
 // Caso a API seja > 29, é necessário verificar se ambas as autorizações foram positivas. 
-            if (statusFine == 'granted' && statusBack == 'granted') {
+            if (statusFine == 'granted' || statusBack == 'granted') {
               return true;
             } else {
               setErrorMsg('Usuário não aceitou solicitação de uso do GPS');
             }
           },
         );
-
+          console.log(result)
 // caso as permissões tenham sido obtidas com sucesso, result será true e a localização do usuário poderá ser obtida.
       if (result) {
         await Geolocation.getCurrentPosition(       //se as permissões foram aceitas, obtemos a localização aqui
-          ({ coords }) => {
+         async ({ coords }) => {
+            console.log(coords)
+            await AsyncStorage.setItem('latitude', coords.latitude.toString())
+            await AsyncStorage.setItem('longitude', coords.longitude.toString())
 	// O parâmetro {coords} desestrutura a resposta, obtendo apenas a parte relativa às coordenadas. Você também pode receber apenas (position) e observar outras informações que são obtidas ao se solicitar a localização. Nesse exemplo, apenas precisamos das coordenadas.
-            setCoords({
+            await setCoords({
               latitude: coords.latitude,
               longitude: coords.longitude,
             });

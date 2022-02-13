@@ -4,7 +4,7 @@ import { TouchableOpacity } from 'react-native-gesture-handler';
 import axios from 'axios'
 import moment from 'moment'
 import NumberFormat from 'react-number-format';
-import { AsyncStorage } from "react-native";
+import AsyncStorage from '@react-native-community/async-storage';
 
 const Historico = ({navigation}) => {
   const [data, setData] = useState([])
@@ -36,7 +36,7 @@ const Historico = ({navigation}) => {
       <View style={estilos.painelBranco}>
         <View style={estilos.painelTotalCashabck}>
         <NumberFormat 
-            value={valorTotal} 
+            value={valorTotal / 100} 
             decimalScale={2}
             displayType={'text'} 
             thousandSeparator={true} 
@@ -53,7 +53,7 @@ const Historico = ({navigation}) => {
             keyExtractor={({identifier}) => identifier.toString()}
             renderItem={({item}) => <View  style={estilos.painelInternoHistorico}>
               <NumberFormat 
-                value={item.value} 
+                value={item.value / 100} 
                 decimalScale={2}
                 displayType={'text'} 
                 thousandSeparator={true} 

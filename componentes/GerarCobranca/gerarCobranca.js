@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import {View, Text, StyleSheet, Image, TextInput} from 'react-native';
 import {TouchableOpacity} from 'react-native-gesture-handler';
 import axios from 'axios'
-import { AsyncStorage } from "react-native";
+import AsyncStorage from '@react-native-community/async-storage';
 
 const GerarCobranca = ({navigation}) => {
   const [valor, onChangeValor] = useState("");
@@ -10,8 +10,8 @@ const GerarCobranca = ({navigation}) => {
   const [cpf, onChangeCpf] = useState("")
   
   async function gerarCobranca(navigation){
-    const value = await AsyncStorage.getItem('cpfCnpj');
-    await axios.post(BASEURL + '/criar_cobranca', {cpf_cnpj_loja: value, valor: valor, descricao: descricao, cpf_cliente: cpf, nome_loja: "Mercadinho São José"}).then((res) => {
+    const cpfCnpj = await AsyncStorage.getItem('cpfCnpj');
+    await axios.post(BASEURL + '/criar_cobranca', {cpf_cnpj_loja: cpfCnpj, valor: valor, descricao: descricao, cpf_cliente: cpf, nome_loja: "Mercadinho São José"}).then((res) => {
       Saldo = res.data.saldo
       navigation.navigate('GerarQRCode', res.data)
     })
