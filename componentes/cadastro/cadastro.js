@@ -1,31 +1,32 @@
 import React, {useState, useEffect} from 'react';
-import {View, Text, StyleSheet, Image, TextInput} from 'react-native';
+import {View, Text, StyleSheet, Image, TextInput, ActivityIndicator, Alert} from 'react-native';
 import {TouchableOpacity} from 'react-native-gesture-handler';
 import axios from 'axios';
 import UseLocalizacao from '../../permissao-localizacao/permissão-localizacao';
 import AsyncStorage from '@react-native-community/async-storage';
 
-
-
 const Cadastro = ({navigation}) => {
   const storeKey = 'cpfCnpj';
-  const [coordenadas, setCoordenadas] = useState({latitude: '', longitude: ''});
   const [nomeLoja, onChangeNomeLoja] = useState('');
   const [cpfCnpj, onChangeCpfCnpj] = useState('');
   const [porcentagemDesconto, onChangePorcentagemDesconto] = useState('');
   const [chavePix, onChangeChavePix] = useState('');
   const [tipoChave, onChangeTipoChave] = useState('');
   const [cadastrado, onChangeCadastrado] = useState(false);
-
   const {coords, errorMsg} = UseLocalizacao()
-  console.log(coords)
+  const [loading, setLoading] = useState(true)
+
+  const createTwoButtonAlert = () =>
+    Alert.alert(
+      'Erro ao cadastrar loja',
+      'Por favor, revise os dados informados',
+      [{text: 'Ok', onPress: () => console.log('OK Pressed')}],
+    );
   
   async function cadastrar(navigation) {
-    let latitude = await AsyncStorage.getItem('latitude')
-    let longitude = await AsyncStorage.getItem('longitude')
-    console.log(coords)
-    console.log(latitude, longitude)
-    await axios
+    setLoading(true)
+    try {
+      await axios
       .post(BASEURL + '/cadastrar_loja', {
         nome_loja: nomeLoja,
         cpf_cnpj: cpfCnpj,
@@ -36,15 +37,16 @@ const Cadastro = ({navigation}) => {
         porcentagem_desconto: porcentagemDesconto,
       })
       .then(async result => {
+        setLoading(false)
         await AsyncStorage.setItem(storeKey, cpfCnpj);
         navigation.navigate('Payment');
       });
+    } catch (error) {
+      createTwoButtonAlert()
+    }
   }
 
   async function getCpfCnpj() {
-    let latitude = await AsyncStorage.getItem('latitude')
-    let longitude = await AsyncStorage.getItem('longitude')
-    console.log(latitude, longitude)
     var value = await AsyncStorage.getItem(storeKey);
     value ? onChangeCadastrado(true) : onChangeCadastrado(false);
   }
@@ -117,6 +119,9 @@ const Cadastro = ({navigation}) => {
           <Text style={estilos.textoFooter}>Saiba mais</Text>
         </View>
       )}
+      {(loading) ? console.log('') : <View style={estilos.loading}>
+          <ActivityIndicator animating={true} size={70} color="#31C7D0"  />
+        </View>}
     </View>
   );
 };
@@ -181,6 +186,10 @@ const estilos = StyleSheet.create({
     color: '#303539',
     fontSize: 15,
   },
+  loading: {
+    position: 'absolute',
+    justifyContent: 'center'
+  }
 });
 
 export default Cadastro;

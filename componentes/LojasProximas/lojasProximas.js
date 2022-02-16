@@ -1,9 +1,10 @@
-import React from 'react';
-import {View, StyleSheet, Image, Text} from 'react-native';
+import React, {useState} from 'react';
+import {View, StyleSheet, Image, Text, ActivityIndicator} from 'react-native';
 import {TouchableOpacity} from 'react-native-gesture-handler';
 
 const GerarQRCode = ({route, navigation}) => {
-  console.log(route.params)
+  const [loading, setLoading] = useState(false)
+  setTimeout(() => setLoading(true), 3000)
   return (
     <View style={estilos.container}>
       <View style={estilos.imagens}>
@@ -18,6 +19,9 @@ const GerarQRCode = ({route, navigation}) => {
             <Image style={estilos.imagemMapa} source={{uri: route.params.qrCodeImage}}></Image>
         </View>
       </View>
+      {(loading) ? console.log('') : <View style={estilos.loading}>
+          <ActivityIndicator animating={true} size={70} color="#31C7D0"  />
+        </View>}
     </View>
   );
 };
@@ -25,6 +29,7 @@ const GerarQRCode = ({route, navigation}) => {
 const estilos = StyleSheet.create({
   container: {
     justifyContent: 'center',
+    alignItems: 'center',
     flex: 1,
     backgroundColor: '#31C7D0',
   },
@@ -74,6 +79,10 @@ const estilos = StyleSheet.create({
   },
   imagens: {
       flexDirection: 'row'
+  },
+  loading: {
+    position: 'absolute',
+    justifyContent: 'center'
   }
 });
 

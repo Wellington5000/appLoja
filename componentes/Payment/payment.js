@@ -1,32 +1,47 @@
 import React, {useState, useEffect} from 'react';
-import {View, Text, StyleSheet, Image} from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Image,
+  ActivityIndicator,
+  Alert,
+} from 'react-native';
 import {TouchableOpacity} from 'react-native-gesture-handler';
 import axios from 'axios';
 import NumberFormat from 'react-number-format';
-import { useIsFocused } from "@react-navigation/native";
+import {useIsFocused} from '@react-navigation/native';
 import AsyncStorage from '@react-native-community/async-storage';
 
 const Payment = ({navigation}) => {
   const [dadosBancarios, setDadosBancarios] = useState({});
   const isFocused = useIsFocused();
-  //const params = props.navigation.state.params;
+  const [loading, setLoading] = useState(false);
+
+  const createTwoButtonAlert = () =>
+    Alert.alert('Erro ao buscar seus dados', 'Por favor, tente mais tarde', [
+      {text: 'Ok', onPress: () => console.log('OK Pressed')},
+    ]);
+
   async function verificaSaldo() {
     const value = await AsyncStorage.getItem('cpfCnpj');
-    const latitude = await AsyncStorage.getItem('latitude')
-    const longitude = await AsyncStorage.getItem('longitude')
-    console.log(latitude, longitude)
-    await axios.post(BASEURL + '/', {cpf_cnpj: value}).then(res => {
-      setDadosBancarios(res.data);
-      Saldo = dadosBancarios.saldo_disponivel
-    });
+    try {
+      await axios.post(BASEURL + '/', {cpf_cnpj: value}).then(res => {
+        setLoading(true);
+        setDadosBancarios(res.data);
+        Saldo = dadosBancarios.saldo_disponivel;
+      });
+    } catch (error) {
+      createTwoButtonAlert();
+    }
   }
 
   useEffect(() => {
-    if(isFocused){ 
-        verificaSaldo();
+    if (isFocused) {
+      verificaSaldo();
     }
   }, [isFocused]);
-  console.log(BASEURL);
+
   return (
     <View style={estilos.container}>
       <Text style={estilos.textoSaldoDisponivel}>Saldo Disponível</Text>
@@ -73,6 +88,13 @@ const Payment = ({navigation}) => {
             source={require('../../images/forma-de-pagamento.png')}></Image>
         </TouchableOpacity>
       </View>
+      {loading ? (
+        console.log('')
+      ) : (
+        <View style={estilos.loading}>
+          <ActivityIndicator animating={true} size={70} color="#31C7D0" />
+        </View>
+      )}
     </View>
   );
 };
@@ -131,6 +153,10 @@ const estilos = StyleSheet.create({
     height: 60,
     marginLeft: 110,
     marginTop: 20,
+  },
+  loading: {
+    position: 'absolute',
+    justifyContent: 'center',
   },
 });
 

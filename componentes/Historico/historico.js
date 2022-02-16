@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FlatList, View, StyleSheet, Image, Text} from 'react-native';
+import { FlatList, View, StyleSheet, Image, Text, ActivityIndicator, Alert} from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import axios from 'axios'
 import moment from 'moment'
@@ -9,21 +9,35 @@ import AsyncStorage from '@react-native-community/async-storage';
 const Historico = ({navigation}) => {
   const [data, setData] = useState([])
   const [valorTotal, setValorTotal] = useState(0)
+  const [loading, setLoading] = useState(false)
+
+  const createTwoButtonAlert = () =>
+    Alert.alert(
+      'Erro ao buscar histórico',
+      'Por favor, tente mais tarde',
+      [{text: 'Ok', onPress: () => console.log('OK Pressed')}],
+    );
+
   moment.locale('pt-BR')
   async function historico(){
     const value = await AsyncStorage.getItem('cpfCnpj');
-    await axios.post(BASEURL + '/historico', {cpf_cnpj: value}).then((res) => {
-      setData(res.data.cobrancas)
-      var valor_total = res.data.cobrancas.reduce((a, b) => a + (b['value'] || 0), 0);
-      
-      setValorTotal(valor_total - (valor_total * (res.data.loja.porcentagem_desconto / 100)))
-
-    })
+    try {
+      await axios.post(BASEURL + '/historico', {cpf_cnpj: value}).then((res) => {
+        setData(res.data.cobrancas)
+        var valor_total = res.data.cobrancas.reduce((a, b) => a + (b['value'] || 0), 0);
+        
+        setValorTotal(valor_total - (valor_total * (res.data.loja.porcentagem_desconto / 100)))
+        setLoading(true)
+      })
+    } catch (error) {
+      createTwoButtonAlert()
+    }
   }
 
   useEffect(() => {
     historico()
   }, []);
+  console.log(data)
   return (
     <View style={estilos.container}>
       <View style={estilos.imagens}>
@@ -47,6 +61,7 @@ const Historico = ({navigation}) => {
             </Text>} 
           />
         </View>
+        
         <View style={estilos.painelInterno}>
           <FlatList 
             data={data}
@@ -67,6 +82,10 @@ const Historico = ({navigation}) => {
           />
         </View>
       </View>
+      {(loading) ? console.log('') : <View style={estilos.loading}>
+          <ActivityIndicator animating={true} size={70} color="#31C7D0"  />
+        </View>
+      }
     </View>
   );
 };
@@ -74,6 +93,7 @@ const Historico = ({navigation}) => {
 const estilos = StyleSheet.create({
   container: {
     justifyContent: 'center',
+    alignItems: 'center',
     flex: 1,
     backgroundColor: '#31C7D0',
   },
@@ -131,6 +151,10 @@ const estilos = StyleSheet.create({
   },
   imagens: {
       flexDirection: 'row'
+  },
+  loading: {
+    position: 'absolute',
+    justifyContent: 'center'
   }
 });
 
